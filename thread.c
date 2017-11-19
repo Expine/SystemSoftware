@@ -6,6 +6,7 @@
 #define push(s, v) (*--(s)=(v))
 
 mythread_t running;
+mythread_t dummy;
 mythread_t thread_queue[MAX_THREAD_SIZE];
 uint queue_head = 0;
 uint queue_tail = 0;
@@ -69,4 +70,13 @@ void yield() {
 	mythread_t new = dequeue();
 	running = new;
 	swtch(&old, new);
+}
+
+/*
+ * スレッドを終了させる
+ */
+void th_exit() {
+	free((uint *)running);
+	running = dummy;
+	yield();
 }
