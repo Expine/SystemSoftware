@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "thread.h"
+#include "swtch.h"
 
 #define push(s, v) (*--(s)=(v))
 

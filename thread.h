@@ -17,3 +17,4 @@ typedef struct mythread
 
 mythread_t new_thread(void (*fun)(int), int arg);
 void start_threads();
+void yield();
