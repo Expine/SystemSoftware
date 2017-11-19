@@ -30,15 +30,6 @@ mythread_t dequeue() {
 }
 
 /*
- * スレッドの先頭を取得する
- */
-mythread_t head() {
-	if(queue_head == queue_tail)
-		return NULL;
-	return thread_queue[queue_head];
-}
-
-/*
  * スレッドを新規作成する関数
  */
 mythread_t new_thread(void (*fun)(int), int arg) {
@@ -71,6 +62,11 @@ void start_threads() {
  * スレッドを切り替える
  */
 void yield() {
-	swtch(&running, head());
-	running = dequeue();
+	// 旧スレッドを取得して、キューに突っ込む
+	mythread_t old = running;
+	enqueue(old);
+	// 新スレッドを取得して、実行スレッドにする
+	mythread_t new = dequeue();
+	running = new;
+	swtch(&old, new);
 }
