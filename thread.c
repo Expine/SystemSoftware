@@ -5,7 +5,8 @@
 
 #define push(s, v) (*--(s)=(v))
 
-mythread_t running;
+mythread_t switcher;
+mythread_t *running;
 mythread_t thread_queue[MAX_THREAD_SIZE];
 uint queue_head = 0;
 uint queue_tail = 0;
@@ -16,6 +17,15 @@ uint queue_tail = 0;
 void enqueue(mythread_t thread) {
 	thread_queue[queue_tail] = thread;
 	queue_tail = (queue_tail + 1) % MAX_THREAD_SIZE;
+}
+
+/*
+ * 現在のスレッドを取得する
+ */
+mythread_t *seek() {
+	mythread_t *ret = &thread_queue[queue_head];
+	queue_head = (queue_head + 1) % queue_tail;
+	return ret;
 }
 
 /*
@@ -55,18 +65,20 @@ mythread_t new_thread(void (*fun)(int), int arg) {
  * スレッドを開始する
  */
 void start_threads() {
-	yield();
+	running = seek();
+	while(1) {
+		swtch(&switcher, *running);
+	}
 }
 
 /*
  * スレッドを切り替える
  */
 void yield() {
-	// 旧スレッドを取得して、キューに突っ込む
-	mythread_t old = running;
-	enqueue(old);
+	// 旧スレッドを取得
+	mythread_t *old = running;
 	// 新スレッドを取得して、実行スレッドにする
-	mythread_t new = dequeue();
+	mythread_t *new = seek();
 	running = new;
-	swtch(&old, new);
+	swtch(old, switcher);
 }
