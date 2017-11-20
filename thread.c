@@ -5,27 +5,50 @@
 
 #define push(s, v) (*--(s)=(v))
 
-mythread_t switcher;
-mythread_t *running;
-mythread_t thread_queue[MAX_THREAD_SIZE];
+mythread_t 	switcher;
+mythread_t 	thread_queue[MAX_THREAD_SIZE];
+uint		thread_state[MAX_THREAD_SIZE];
 uint queue_head = 0;
 uint queue_tail = 0;
 
 /*
  * スレッドをキューに入れる
  */
-void enqueue(mythread_t thread) {
+void enqueue(mythread_t thread, uint state) {
 	thread_queue[queue_tail] = thread;
+	thread_state[queue_tail] = state;
 	queue_tail = (queue_tail + 1) % MAX_THREAD_SIZE;
+}
+
+/*
+ * 現在のスレッドの状態を取得する
+ */
+uint seek_state() {
+	return thread_state[queue_head];
+}
+
+/*
+ * 現在のスレッドの状態を変更する
+ */
+void set_state(uint state) {
+	thread_state[queue_head] = state;
 }
 
 /*
  * 現在のスレッドを取得する
  */
-mythread_t *seek() {
-	mythread_t *ret = &thread_queue[queue_head];
+mythread_t *seek_thread() {
+	return &thread_queue[queue_head];
+}
+
+/*
+ * 次のスレッドに進める
+ */
+void next() {
 	queue_head = (queue_head + 1) % queue_tail;
-	return ret;
+	// 生きていないスレッドなら次に回す
+	if(seek_state() != THREAD_STATE_ALIVE)
+		next();
 }
 
 /*
@@ -57,7 +80,7 @@ mythread_t new_thread(void (*fun)(int), int arg) {
     mythread_t thread = (mythread_t)sp;
     thread->eip = (uint)fun;
     // スレッドを格納
-    enqueue(thread);
+    enqueue(thread, THREAD_STATE_ALIVE);
     return thread;
 }
 
@@ -65,9 +88,8 @@ mythread_t new_thread(void (*fun)(int), int arg) {
  * スレッドを開始する
  */
 void start_threads() {
-	running = seek();
 	while(1) {
-		swtch(&switcher, *running);
+		swtch(&switcher, *(seek_thread()));
 	}
 }
 
@@ -76,9 +98,13 @@ void start_threads() {
  */
 void yield() {
 	// 旧スレッドを取得
-	mythread_t *old = running;
-	// 新スレッドを取得して、実行スレッドにする
-	mythread_t *new = seek();
-	running = new;
+	mythread_t *old = seek_thread();
+	// 新スレッドに移行する
+	next();
 	swtch(old, switcher);
+}
+
+void th_exit() {
+	set_state(THREAD_STATE_DEAD);
+	yield();
 }
