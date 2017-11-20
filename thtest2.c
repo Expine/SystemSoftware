@@ -5,14 +5,15 @@ void foo(int c) {
 	while (1) {
 		printf("foo : %d\n", c);
 		c += 1;
+		th_exit();
 	}
 }
 
 void bar(int c) {
-	while (1) {
+	while(1) {
 		printf("bar : %d\n", c);
-		yield();
 		c += 2;
+		yield();
 	}
 }
 
