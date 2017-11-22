@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{jsarticle}
+%
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{ascmac}
+%
+\setlength{\textwidth}{\fullwidth}
+\setlength{\textheight}{40\baselineskip}
+\addtolength{\textheight}{\topskip}
+\setlength{\voffset}{-0.2in}
+\setlength{\topmargin}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\headsep}{0pt}
+%
+\title{システムソフトウェア 大課題}
+\author{有松 優 \\ 学籍番号 15\_00644}
+\date{\today}
+%
+\begin{document}
+\maketitle
+%
+\hrulefill
+\section{大課題のテーマ}
+ユーザレベルスレッドライブラリの構築を行う。今回実装した機能は、以下のとおりである。\\
+\begin{enumerate}
+	\item 関数new_threadによって、特定の関数から始まるスレッドを生成できる
+	\item 関数start_threadsによって、生成したスレッドを起動することができる
+	\item スレッドの切り替えを関数yieldによって陽に行うことができる
+	\item 関数th_exitによって、スレッドを停止させることができる
+\end{enumerate}
+
+
+\section{ビルド方法}
+使用した言語はCであり、ライブラリなどは標準ライブラリ以外用いていない。環境は、演習室のMac(macOS 10.13）とする。\\
+該当ディレクトリ内で「make」と打ち込むとビルドされる。
+
+\section{実行方法}
+以下のファイルが、それぞれ対応する処理を確認することができる。
+\begin{description}
+ \item[thtest1]スレッドの生成と起動、yieldによる陽な切り替え
+ \item[thtest2]スレッドの停止
+\end{description}
+
+\section{実行例}
+\subsection{thtest1}
+\begin{screen}
+\begin{verbatim}
+\end{verbatim}
+\end{screen}
+
+\subsection{thtest2}
+\begin{screen}
+\begin{verbatim}
+\end{verbatim}
+\end{screen}
+
+\section{実装上の工夫}
+
+%
+%
+\end{document}
