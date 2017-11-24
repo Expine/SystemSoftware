@@ -29,7 +29,7 @@ void baz(int c) {
 }
 
 int main() {
-	new_thread(foo, 0);
+	new_thread(foo, 10);
 	new_thread(bar, 0);
 	new_thread(baz, 0);
 	start_threads();

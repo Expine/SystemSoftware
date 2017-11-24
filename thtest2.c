@@ -5,16 +5,15 @@ void foo(int c) {
 	while (1) {
 		printf("foo : %d\n", c);
 		c += 1;
-		th_exit();
+		if(c >= 60000)
+			th_exit();
+		yield();
 	}
 }
 
 void bar(int c) {
-	while(1) {
-		printf("bar : %d\n", c);
-		c += 2;
-		yield();
-	}
+	printf("bar : %d\n", c);
+	c += 2;
 }
 
 void baz(int c) {

@@ -90,7 +90,8 @@ mythread_t new_thread(void (*fun)(int), int arg) {
 	sp += STACK_DEPTH;
 	// 引数を置く
     push(sp, arg);
-    push(sp, 0);
+    // リターンアドレスを置く(スレッドの終了を示す)
+    push(sp, (uint)th_exit);
 	// スレッド構造体を置き、関数を設置する
     sp -= sizeof(struct mythread) / sizeof(uint);
     mythread_t thread = (mythread_t)sp;
