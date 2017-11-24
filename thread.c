@@ -8,6 +8,9 @@
 
 #define push(s, v) (*--(s)=(v))
 
+uint autoyield = 0;
+uint isAuto() { uint ret = autoyield; autoyield = 0; return ret; }
+
 // start_threadsで回すためのスレッド
 mythread_t 	switcher;
 // メモリ解放のための先頭アドレス
@@ -140,9 +143,6 @@ mythread_t *seek_thread() {
  */
 void next() {
 	queue_head = (queue_head + 1) % queue_tail;
-	// 生きていないスレッドなら次に回す
-	if(seek_state() != THREAD_STATE_ALIVE)
-		next();
 }
 
 /*
@@ -198,8 +198,22 @@ void printQueue()
 void start_threads() {
 	while(1) {
 //		printQueue();
+		// 生きていないスレッドなら次に回す
+		while(seek_state() != THREAD_STATE_ALIVE)
+			next();
 		swtch(&switcher, *(seek_thread()));
 	}
+}
+
+void handler() {
+	autoyield = 1;	
+	/*
+	// 旧スレッドを取得
+	mythread_t *old = &thread_queue[queue_head];
+	// 新スレッドに移行する
+	queue_head = (queue_head + 1) % queue_tail;
+	swtch(old, switcher);
+	*/
 }
 
 /*
@@ -207,13 +221,10 @@ void start_threads() {
  */
 void start_preemptive_threads() {
 	// シグナル登録
-//	struct sigaction *act = malloc(sizeof(struct sigaction));
-	struct sigaction act;
-	memset(&act, 0, sizeof(struct sigaction));
-	act.sa_handler = yield;
-	act.sa_flags = SA_RESTART;	
-	sigemptyset(&act.sa_mask);
-	if(sigaction(SIGALRM, &act, NULL) < 0) {
+	struct sigaction *act = malloc(sizeof(struct sigaction));
+	act->sa_handler = handler;
+	act->sa_flags = SA_RESTART;	
+	if(sigaction(SIGALRM, act, NULL) < 0) {
 		// 失敗時はエラー
 		perror("sigaction error");
 		exit(1);
@@ -238,7 +249,6 @@ void start_preemptive_threads() {
  * スレッドを切り替える
  */
 void yield() {
-	printf("yield\n");
 	// 旧スレッドを取得
 	mythread_t *old = seek_thread();
 	// 新スレッドに移行する
