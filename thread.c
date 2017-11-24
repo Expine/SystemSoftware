@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <string.h>
 #include "thread.h"
 #include "swtch.h"
 
@@ -200,9 +203,42 @@ void start_threads() {
 }
 
 /*
+ * プリエンティブスケジュールでスレッドを開始する
+ */
+void start_preemptive_threads() {
+	// シグナル登録
+//	struct sigaction *act = malloc(sizeof(struct sigaction));
+	struct sigaction act;
+	memset(&act, 0, sizeof(struct sigaction));
+	act.sa_handler = yield;
+	act.sa_flags = SA_RESTART;	
+	sigemptyset(&act.sa_mask);
+	if(sigaction(SIGALRM, &act, NULL) < 0) {
+		// 失敗時はエラー
+		perror("sigaction error");
+		exit(1);
+	}
+
+	// タイマー登録
+	struct itimerval timer;
+	timer.it_value.tv_sec = 0;
+	timer.it_value.tv_usec = 10000;
+	timer.it_interval.tv_sec = 0;
+	timer.it_interval.tv_usec = 10000;
+	if(setitimer(ITIMER_REAL, &timer, NULL) < 0) {
+		// 失敗時はエラー
+		perror("setitmer error");
+		exit(1);
+	}
+
+	start_threads();
+}
+
+/*
  * スレッドを切り替える
  */
 void yield() {
+	printf("yield\n");
 	// 旧スレッドを取得
 	mythread_t *old = seek_thread();
 	// 新スレッドに移行する

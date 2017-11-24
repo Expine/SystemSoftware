@@ -4,14 +4,14 @@
 
 LIB_SRCS = thread.c
 ASM_SRCS = swtch.S
-EXE_SRCS = thtest1.c thtest2.c thtest3.c
+EXE_SRCS = thtest1.c thtest2.c thtest3.c thtest4.c
 LIB_OBJS = $(LIB_SRCS:%.c=%.o) $(ASM_SRCS:%.S=%.o)
 ALL_OBJS = $(EXE_SRCS:%.c=%.o) $(LIB_OBJS)
-EXES = thtest1 thtest2 thtest3
+EXES = thtest1 thtest2 thtest3 thtest4
 
 CC = gcc
 CPPFLAGS =
-CFLAGS = -std=c99 -pedantic -Wall -Wextra -Werror -g -m32 -mstackrealign
+CFLAGS =  -std=c99 -pedantic -Wall -Wextra -Werror -g -m32 -mstackrealign
 LDFLAGS =
 RM = rm -f
 
@@ -32,6 +32,9 @@ thtest2: $(LIB_OBJS) thtest2.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 thtest3: $(LIB_OBJS) thtest3.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+
+thtest4: $(LIB_OBJS) thtest4.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 clean:
