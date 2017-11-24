@@ -1,3 +1,7 @@
+/*
+ * スレッドの明示的終了及び非明示的終了の検査
+ */
+
 #include <stdio.h>
 #include "thread.h"
 

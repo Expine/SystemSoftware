@@ -1,3 +1,7 @@
+/*
+ * スレッドの生成及び実行の検査
+ */
+
 #include <stdio.h>
 #include "thread.h"
 
