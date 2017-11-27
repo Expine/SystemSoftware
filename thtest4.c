@@ -9,8 +9,6 @@ void foo(int c) {
 	while (1) {
 		printf("foo : %d\n", c);
 		c += 1;
-		if(isAuto())
-			yield();
 	}
 }
 
@@ -18,8 +16,6 @@ void bar(int c) {
 	while (1) {
 		printf("bar : %d\n", c);
 		c += 2;
-		if(isAuto())
-			yield();
 	}
 }
 
@@ -29,8 +25,6 @@ void baz(int c) {
 		c += 3;
 		printf("baz : %d\n", c);
 		c += 3;
-		if(isAuto())
-			yield();
 	}
 }
 

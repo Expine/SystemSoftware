@@ -8,9 +8,6 @@
 
 #define push(s, v) (*--(s)=(v))
 
-uint autoyield = 0;
-uint isAuto() { uint ret = autoyield; autoyield = 0; return ret; }
-
 // start_threadsで回すためのスレッド
 mythread_t 	switcher;
 // メモリ解放のための先頭アドレス
@@ -30,6 +27,7 @@ uint queue_head = 0;
 uint queue_tail = 0;
 
 uint sleep_queue_tail = 0;
+
 
 void printWaitQueue() {
 	uint i = 0;
@@ -206,14 +204,11 @@ void start_threads() {
 }
 
 void handler() {
-	autoyield = 1;	
-	/*
 	// 旧スレッドを取得
 	mythread_t *old = &thread_queue[queue_head];
 	// 新スレッドに移行する
 	queue_head = (queue_head + 1) % queue_tail;
 	swtch(old, switcher);
-	*/
 }
 
 /*
@@ -222,7 +217,7 @@ void handler() {
 void start_preemptive_threads() {
 	// シグナル登録
 	struct sigaction *act = malloc(sizeof(struct sigaction));
-	act->sa_handler = handler;
+	act->sa_sigaction = handler;
 	act->sa_flags = SA_RESTART;	
 	if(sigaction(SIGALRM, act, NULL) < 0) {
 		// 失敗時はエラー

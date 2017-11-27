@@ -34,5 +34,3 @@ void th_exit();
 void wait_thread(void *a);
 void notify(mythread_t th, void *a);
 void notify_all(void *a);
-
-uint isAuto();
