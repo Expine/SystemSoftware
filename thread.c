@@ -218,7 +218,8 @@ void start_preemptive_threads() {
 	// シグナル登録
 	struct sigaction *act = malloc(sizeof(struct sigaction));
 	act->sa_sigaction = handler;
-	act->sa_flags = SA_RESTART;	
+	// シグナル割り込み中に再びシグナルを呼べるようにする
+	act->sa_flags = SA_RESTART | SA_NODEFER;	
 	if(sigaction(SIGALRM, act, NULL) < 0) {
 		// 失敗時はエラー
 		perror("sigaction error");
@@ -228,9 +229,9 @@ void start_preemptive_threads() {
 	// タイマー登録
 	struct itimerval timer;
 	timer.it_value.tv_sec = 0;
-	timer.it_value.tv_usec = 10000;
+	timer.it_value.tv_usec = 100;
 	timer.it_interval.tv_sec = 0;
-	timer.it_interval.tv_usec = 10000;
+	timer.it_interval.tv_usec = 100;
 	if(setitimer(ITIMER_REAL, &timer, NULL) < 0) {
 		// 失敗時はエラー
 		perror("setitmer error");

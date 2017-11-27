@@ -1,0 +1,23 @@
+foo : 122
+foo : 123
+foo : 124bar : 0
+bar : 2
+bar : 4
+
+...
+
+bar : 182
+bar : 184
+bar : 186
+baz : 0
+baz : 3
+baz : 6
+
+...
+
+baz : 213
+baz : 216
+baz : 219
+baz : bar : 188
+bar : 190
+bar : 192
