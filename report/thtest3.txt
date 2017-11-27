@@ -1,0 +1,12 @@
+bar : 10
+bar : 20
+baz : 120
+foo : 121
+bar : 131
+bar : 141
+baz : 241
+foo : 242
+bar : 252
+bar : 262
+baz : 362
+foo : 363
