@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <string.h>
 #include "thread.h"
 #include "swtch.h"
 
@@ -24,6 +27,7 @@ uint queue_head = 0;
 uint queue_tail = 0;
 
 uint sleep_queue_tail = 0;
+
 
 void printWaitQueue() {
 	uint i = 0;
@@ -137,9 +141,6 @@ mythread_t *seek_thread() {
  */
 void next() {
 	queue_head = (queue_head + 1) % queue_tail;
-	// 生きていないスレッドなら次に回す
-	if(seek_state() != THREAD_STATE_ALIVE)
-		next();
 }
 
 /*
@@ -195,8 +196,49 @@ void printQueue()
 void start_threads() {
 	while(1) {
 //		printQueue();
+		// 生きていないスレッドなら次に回す
+		while(seek_state() != THREAD_STATE_ALIVE)
+			next();
 		swtch(&switcher, *(seek_thread()));
 	}
+}
+
+void handler() {
+	// 旧スレッドを取得
+	mythread_t *old = &thread_queue[queue_head];
+	// 新スレッドに移行する
+	queue_head = (queue_head + 1) % queue_tail;
+	swtch(old, switcher);
+}
+
+/*
+ * プリエンティブスケジュールでスレッドを開始する
+ */
+void start_preemptive_threads() {
+	// シグナル登録
+	struct sigaction *act = malloc(sizeof(struct sigaction));
+	act->sa_sigaction = handler;
+	// シグナル割り込み中に再びシグナルを呼べるようにする
+	act->sa_flags = SA_RESTART | SA_NODEFER;	
+	if(sigaction(SIGALRM, act, NULL) < 0) {
+		// 失敗時はエラー
+		perror("sigaction error");
+		exit(1);
+	}
+
+	// タイマー登録
+	struct itimerval timer;
+	timer.it_value.tv_sec = 0;
+	timer.it_value.tv_usec = 100;
+	timer.it_interval.tv_sec = 0;
+	timer.it_interval.tv_usec = 100;
+	if(setitimer(ITIMER_REAL, &timer, NULL) < 0) {
+		// 失敗時はエラー
+		perror("setitmer error");
+		exit(1);
+	}
+
+	start_threads();
 }
 
 /*
